@@ -4,7 +4,6 @@
     "description": "Webpack loader for access template files",
     "main": "index.js",
     "devDependencies": {
-		"babel-plugin-syntax-flow": "^6.3.13",
 		"babel-preset-es2015": "^6.3.13",
 		"babel-preset-stage-1": "^6.3.13",
         "grunt": "^0.4.5",
