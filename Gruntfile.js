@@ -5,7 +5,7 @@ module.exports = function(grunt) {
         babel: {
             dist: {
                 files: {
-                    'lib/index.js': 'src/index.js'
+                    'index.js': 'index.ts'
                 }
             }
         }
