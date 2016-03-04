@@ -3,7 +3,7 @@
 		"**/.git": true,
 		"**/.DS_Store": true,
 		"**/*.js": {
-			"when": "$(basename).tss"
+			"when": "$(basename).ts"
 		}
 	}
 }
