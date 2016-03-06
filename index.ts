@@ -1,67 +1,89 @@
 const fs = require('fs');
 
 module.exports = function(content) {
-	var resolve = this.resolve.bind(this),
-		context = this.context,
+	var context = this.context,
 		callback = this.async(),
+		uses = [],
 		components = [],
 		attributes = [],
 		waiting = 0;
 	
-	this.cacheable();
+	this.cacheable(true);
 	
 	content = content
 		.replace(/\s+/g, ' ')
 		.replace(/'/g, "\\'")
 		.replace(/<use\s(component|attribute)="(.*?)"(\s?as="(.*?)")?\s?\/>\s?/ig, function(m, kind, path, _, as) {
-			waiting++;
-			
-			process.nextTick(function() {
-				resolve(context, path, function(err, use) {
-					if (err) {
-						return callback(err);
-					}
-					
-					var desc = [];
-					
-					if (kind === 'component') {
-						if (fs.existsSync(use)) {
-							desc.push(`Component: require('${path}')['default']`);
-						}
-						
-						if (fs.existsSync(use.replace(/js$/, 'html'))) {
-							desc.push(`template: require('${path}.html')['default']`);
-						}
-						
-						if (desc.length) {
-							as = as || path.split('/').pop();
-							components.push(`'${as.toUpperCase()}': {${desc.join(', ')}}`);
-						}
-					} else if (fs.existsSync(use)) {
-						as = as || path.split('/').pop();
-						attributes.push(`'${as}': require('${path}')['default']`);
-					}
-					
-					if (!--waiting) {
-						finish();
-					}
-				});
-			});
+			if (!callback) {
+				checkFiles(kind, path, as, this.resolveSync(context, path));
+			} else {
+				waiting++;
+				
+				uses.push([kind, path, as]);
+			}
 			
 			return '';
+		}.bind(this));
+	
+	if (callback) {
+		uses.forEach(resolveAsync, this);
+	} else {
+		return render();
+	}
+	
+	function resolveAsync(item) {
+		var kind = item[0],
+			path = item[1],
+			as = item[2];
+		
+		this.resolve(context, path, function(err, use) {
+			if (err) {
+				return callback(err);
+			}
+			
+			checkFiles(kind, path, as, use);
+			
+			--waiting || finish();
 		});
-
+	}
+		
+	function checkFiles(kind, path, as, use) {
+		var desc = [];
+		
+		if (kind === 'component') {
+			if (fs.existsSync(use)) {
+				desc.push(`Component: require('${path}')['default']`);
+			}
+			
+			if (fs.existsSync(use.replace(/(ts|js)$/, 'html'))) {
+				desc.push(`template: require('${path}.html')['default']`);
+			}
+			
+			if (desc.length) {
+				as = as || path.split('/').pop();
+				components.push(`'${as.toUpperCase()}': {${desc.join(', ')}}`);
+			}
+		} else if (fs.existsSync(use)) {
+			as = as || path.split('/').pop();
+			attributes.push(`'${as}': require('${path}')['default']`);
+		}
+	}
+	
 	function finish() {
-		callback(null, `"use strict";
+		callback(null, render());
+	}
+
+	function render() {
+		return `"use strict";
 
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 	
-var Template = require('access-core/app/template')['default'],
+var Template = require('access-core/access')['Template'],
 	components = {${components.join(', ')}},
 	attributes = {${attributes.join(', ')}};		
 
-exports.default = new Template('${content}', components, attributes);`);
+exports.default = new Template('${content}', components, attributes);`;
 	}
 };
