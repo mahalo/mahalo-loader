@@ -80,7 +80,7 @@ Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 	
-var Template = require('access-core/access')['Template'],
+var Template = require('mahalo/mahalo')['Template'],
 	components = {${components.join(', ')}},
 	attributes = {${attributes.join(', ')}};		
 
