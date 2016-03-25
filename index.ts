@@ -5,7 +5,7 @@ export default function mahaloLoader(content) {
 		callback = this.async(),
 		uses = [],
 		components = [],
-		attributes = [],
+		behaviors = [],
 		waiting = 0;
 	
 	this.cacheable(true);
@@ -13,7 +13,7 @@ export default function mahaloLoader(content) {
 	content = content
 		.replace(/\s+/g, ' ')
 		.replace(/'/g, "\\'")
-		.replace(/<use\s(component|attribute)="(.*?)"(\s?as="(.*?)")?\s?\/>\s?/ig, function(m, kind, path, _, as) {
+		.replace(/<use\s(component|behavior)="(.*?)"(\s?as="(.*?)")?\s?\/>\s?/ig, function(m, kind, path, _, as) {
 			if (!callback) {
 				checkFiles(kind, path, as, this.resolveSync(context, path));
 			} else {
@@ -69,7 +69,7 @@ export default function mahaloLoader(content) {
 			}
 		} else if (fs.existsSync(use)) {
 			as = as || path.split('/').pop();
-			attributes.push(`'${as}': require('${path}')['default']`);
+			behaviors.push(`'${as}': require('${path}')['default']`);
 		}
 	}
 	
@@ -86,8 +86,8 @@ Object.defineProperty(exports, "__esModule", {
 	
 var Template = require('mahalo/mahalo')['Template'],
 	components = {${components.join(', ')}},
-	attributes = {${attributes.join(', ')}};		
+	behaviors = {${behaviors.join(', ')}};		
 
-exports.default = new Template('${content}', components, attributes);`;
+exports.default = new Template('${content}', components, behaviors);`;
 	}
 };
