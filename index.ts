@@ -1,6 +1,6 @@
-const fs = require('fs');
+import fs from 'fs';
 
-module.exports = function(content) {
+export default function mahaloLoader(content) {
 	var context = this.context,
 		callback = this.async(),
 		uses = [],
@@ -26,6 +26,10 @@ module.exports = function(content) {
 		}.bind(this));
 	
 	if (callback) {
+		if (!waiting) {
+			return finish() || '';
+		}
+		
 		uses.forEach(resolveAsync, this);
 	} else {
 		return render();
