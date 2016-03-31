@@ -1,4 +1,5 @@
 import {minify} from 'html-minifier';
+import fs from 'fs';
 
 var config = {
 		keepClosingSlash: true,
@@ -7,7 +8,8 @@ var config = {
 	};
 
 export default function mahaloLoader(content) {
-	var context = this.context,
+	var map = this.resourcePath + '.ts',
+		context = this.context,
 		callback = this.async(),
 		uses = [],
 		_components = [],
@@ -15,6 +17,8 @@ export default function mahaloLoader(content) {
 		waiting = 0;
 	
 	this.cacheable(true);
+	
+	fs.existsSync(map) || fs.writeFile(map, 'var Template: Template;export default Template;');
 	
 	content = minify(content, config).replace(/<use\s(component|behavior)="(.*?)"(\s?as="(.*?)")?\s?\/>\s?/ig, (m, kind, path, _, as) => {
 		if (!callback) {
@@ -119,7 +123,7 @@ export default function mahaloLoader(content) {
 				return;
 			}
 			
-			components.push(`'${component.as}': {\n\t\t${component.files.join(', ')}\n\t}`);
+			components.push(`'${component.as}': {\n\t\t\t${component.files.join(',\n\t\t\t')}\n\t\t}`);
 		});
 		
 		_behaviors.forEach(behavior => {
@@ -137,8 +141,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 
 var Template = require('mahalo/mahalo')['Template'],
-	components = {\n\t${components.join(',\n\t')}\n},
-	behaviors = {${behaviors.join(', ')}};		
+	components = {\n\t\t${components.join(',\n\t\t')}\n\t},
+	behaviors = {\n\t\t${behaviors.join(',\n\t\t')}\n\t};		
 
 exports.default = new Template(${JSON.stringify(content)}, components, behaviors);`;
 	}
