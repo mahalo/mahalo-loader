@@ -158,7 +158,7 @@ Object.defineProperty(exports, "__esModule", {
 
 ${styles.join(';\n')};
 
-var Template = require('mahalo/mahalo')['Template'],
+var Template = require('mahalo')['Template'],
     components = {\n\t\t${components.join(',\n\t\t')}\n\t},
     behaviors = {\n\t\t${behaviors.join(',\n\t\t')}\n\t};		
 
