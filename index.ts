@@ -1,11 +1,9 @@
-import {minify} from 'html-minifier';
 import fs from 'fs';
 
-var config = {
-        keepClosingSlash: true,
-        collapseWhitespace:	true,
-        conservativeCollapse: true
-    };
+var USE_TAG_RAW = /<use\s*(component|behavior)="([-a-z\/\.]*)"(\s*as="([-a-z]*)")?\s*\/>\s*/ig,
+    USE_TAG_STRING = /<use\s*(component|behavior)=\\"([-a-z\/\.]*)\\"(\s*as=\\"([-a-z]*)\\")?\s*\/>(\s|\\r|\\n)*/ig,
+    STYLE_TAG_RAW = /<link\s(.*?)href="([-a-z\/\.]*)"[^>]*>\s*/ig,
+    STYLE_TAG_STRING = /<link\s(.*?)href=\\"([-a-z\/\.]*)\\"[^>]*>(\s|\\r|\\n)*/ig;
 
 export default function mahaloLoader(content) {
     var map = this.resourcePath + '.ts',
@@ -14,13 +12,19 @@ export default function mahaloLoader(content) {
         uses = [],
         _components = [],
         _behaviors = [],
-        waiting = 0;
-    
-    this.cacheable(true);
+        styles = [],
+        waiting = 0,
+        useTag = USE_TAG_RAW,
+        styleTag = STYLE_TAG_RAW;
     
     fs.existsSync(map) || fs.writeFile(map, 'var Template: Template;export default Template;');
     
-    content = minify(content, config).replace(/<use\s(component|behavior)="(.*?)"(\s?as="(.*?)")?\s?\/>\s?/ig, (m, kind, path, _, as) => {
+    if (this.loaderIndex !== this.loaders.length - 1) {
+        useTag = USE_TAG_STRING;
+        styleTag = STYLE_TAG_STRING;
+    }
+    
+    content = content.replace(useTag, (m, kind, path, _, as) => {
         if (!callback) {
             resolveSync.call(this, kind, path, as);
         } else {
@@ -32,6 +36,18 @@ export default function mahaloLoader(content) {
         
         return '';
     });
+    
+    content = content.replace(styleTag, (m, _, path) => {
+        styles.push('require("' + path + '")');
+        
+        return '';
+    });
+    
+    if (useTag === USE_TAG_RAW) {
+        content = JSON.stringify(content);
+    } else {
+        content = content.replace(/\s*module\.exports\s*=\s*(.*)\s*;\s*$/, '$1');
+    }
     
     if (!callback) {
         return render();
@@ -140,10 +156,12 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+${styles.join(';\n')};
+
 var Template = require('mahalo/mahalo')['Template'],
     components = {\n\t\t${components.join(',\n\t\t')}\n\t},
     behaviors = {\n\t\t${behaviors.join(',\n\t\t')}\n\t};		
 
-exports.default = new Template(${JSON.stringify(content)}, components, behaviors);`;
+exports.default = new Template(${content}, components, behaviors);`;
     }
 };
