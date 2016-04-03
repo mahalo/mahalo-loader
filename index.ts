@@ -38,6 +38,8 @@ export default function mahaloLoader(content) {
     });
     
     content = content.replace(styleTag, (m, _, path) => {
+        path = ['.', '/'].indexOf(path[0]) < 0 ? './' + path : path;
+        
         styles.push('require("' + path + '")');
         
         return '';
