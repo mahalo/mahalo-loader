@@ -1,9 +1,9 @@
 import fs from 'fs';
 
-var USE_TAG_RAW = /<use\s*(component|behavior)="([-a-z\/\.]*)"(\s*as="([-a-z]*)")?\s*\/>\s*/ig,
-    USE_TAG_STRING = /<use\s*(component|behavior)=\\"([-a-z\/\.]*)\\"(\s*as=\\"([-a-z]*)\\")?\s*\/>(\s|\\r|\\n)*/ig,
-    STYLE_TAG_RAW = /<link\s(.*?)href="([-a-z\/\.]*)"[^>]*>\s*/ig,
-    STYLE_TAG_STRING = /<link\s(.*?)href=\\"([-a-z\/\.]*)\\"[^>]*>(\s|\\r|\\n)*/ig;
+var USE_TAG_RAW = /<use\s*(component|behavior)="([\w\d\/\.\-]*)"(\s*as="([a-z\-]*)")?\s*\/>\s*/ig,
+    USE_TAG_STRING = /<use\s*(component|behavior)=\\"([\w\d\/\.\-]*)\\"(\s*as=\\"([a-z\-]*)\\")?\s*\/>(\s|\\r|\\n)*/ig,
+    STYLE_TAG_RAW = /<link\s(.*?)href="([\w\d\/\.\-]*)"[^>]*>\s*/ig,
+    STYLE_TAG_STRING = /<link\s(.*?)href=\\"([\w\d\/\.\-]*)\\"[^>]*>(\s|\\r|\\n)*/ig;
 
 export default function mahaloLoader(content) {
     var map = this.resourcePath + '.ts',
@@ -60,7 +60,7 @@ export default function mahaloLoader(content) {
     function resolveAsync(item) {
         var path = item[1],
             desc = {
-                as: as(item[2], path),
+                as: getAs(item[2], path),
                 path: path,
                 files: []
             };
@@ -79,7 +79,7 @@ export default function mahaloLoader(content) {
     
     function resolveSync(kind, path, as) {
         var desc = {
-                as: as(as, path),
+                as: getAs(as, path),
                 path: path,
                 files: []
             };
@@ -120,8 +120,8 @@ export default function mahaloLoader(content) {
         finish();
     }
     
-    function as(as: string, path: string) {
-        return (as || path.split('/').pop()).toUpperCase();
+    function getAs(as: string, path: string) {
+        return (as || path.split('/').pop().replace(/[^a-z0-9]/ig, '-')).toUpperCase();
     }
     
     function finish() {
