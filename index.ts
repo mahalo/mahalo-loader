@@ -1,7 +1,7 @@
 import fs from 'fs';
 
-var USE_TAG_RAW = /<use\s*(component|behavior)="(~?[\w\/.-]+)"(\s*on="([^"]+)")?\s*\/>\s*/ig,
-    USE_TAG_STRING = /<use\s*(component|behavior)=\\"(~?[\w\/.-]+)\\"(\s*on=\\"([^"]+)\\")?\s*\/>(\s|\\r|\\n)*/ig,
+var USE_TAG_RAW = /<use\s*(component|behavior)="(~?[\w\/.-]+)"(\s*select="([^"]+)")?\s*\/>\s*/ig,
+    USE_TAG_STRING = /<use\s*(component|behavior)=\\"(~?[\w\/.-]+)\\"(\s*select=\\"([^"]+)\\")?\s*\/>(\s|\\r|\\n)*/ig,
     STYLE_TAG_RAW = /<link\s(.*?)href="([\w\/\.\-]*)"[^>]*>\s*/ig,
     STYLE_TAG_STRING = /<link\s(.*?)href=\\"([\w\/\.\-]*)\\"[^>]*>(\s|\\r|\\n)*/ig,
     VALID_SELECTOR = /^((\.-?)?[\w][\w-]*|\[[^\s"'>\/=]+([*^]?=(["'])[^\4]*\4)?](?![\w]))+$/,
@@ -26,14 +26,14 @@ export default function mahaloLoader(content) {
         styleTag = STYLE_TAG_STRING;
     }
     
-    content = content.replace(useTag, (m, kind, path, _, on) => {
+    content = content.replace(useTag, (m, kind, path, _, selector) => {
         if (!callback) {
-            resolveSync.call(this, kind, path, on);
+            resolveSync.call(this, kind, path, selector);
         } else {
             waiting++;
             kind === 'component' && waiting++;
             
-            uses.push([kind, path, on]);
+            uses.push([kind, path, selector]);
         }
         
         return '';
@@ -62,7 +62,7 @@ export default function mahaloLoader(content) {
     function resolveAsync(item) {
         var path = item[1],
             desc = {
-                on: getOn.call(this, item[2], path, item[0]),
+                selector: getSelector.call(this, item[2], path, item[0]),
                 path: path,
                 files: []
             };
@@ -79,9 +79,9 @@ export default function mahaloLoader(content) {
         }
     }
     
-    function resolveSync(kind, path, on) {
+    function resolveSync(kind, path, selector) {
         var desc = {
-                on: getOn.call(this, on, path, kind),
+                selector: getSelector.call(this, selector, path, kind),
                 path: path,
                 files: []
             };
@@ -116,24 +116,24 @@ export default function mahaloLoader(content) {
     
     function addBehavior(desc, err?) {
         if (!err) {
-            desc.files.push(`'${desc.on}': require('${desc.path}')['default']`);
+            desc.files.push(`'${desc.selector}': require('${desc.path}')['default']`);
         }
         
         finish();
     }
     
-    function getOn(on: string, path: string, kind: string) {
-        if (!on) {
-            on = path.split('/').pop().replace(/[^\w]/g, '-').replace(/^-/, '');
-        }
-
-        if (kind === 'component') {
-            VALID_SELECTOR.test(on) || this.emitError('Invalid selector for component');
+    function getSelector(selector: string, path: string, kind: string) {
+        if (selector) {
+            if (kind === 'component') {
+                VALID_SELECTOR.test(selector) || this.emitError('Invalid selector for component');
+            } else {
+                VALID_ATTRIBUTE.test(selector) || this.emitError('Invalid attribute name for behavior.');
+            }
         } else {
-            VALID_ATTRIBUTE.test(on) || this.emitError('Invalid attribute name for behavior.');
+            selector = path.split('/').pop().replace(/[^\w]/g, '-').replace(/^-/, '');
         }
 
-        return on.toUpperCase();
+        return selector;
     }
     
     function finish() {
@@ -153,7 +153,7 @@ export default function mahaloLoader(content) {
                 return;
             }
             
-            components.push(`'${component.on}': {\n\t\t\t${component.files.join(',\n\t\t\t')}\n\t\t}`);
+            components.push(`'${component.selector}': {\n\t\t\t${component.files.join(',\n\t\t\t')}\n\t\t}`);
         });
         
         _behaviors.forEach(behavior => {
