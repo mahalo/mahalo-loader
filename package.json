@@ -1,7 +1,7 @@
 {
   "name": "mahalo-loader",
   "description": "Webpack loader for Mahalo JS template files",
-  "version": "0.6.0",
+  "version": "0.5.0",
   "author": {
     "name": "Markus Schmidt",
     "email": "m.schmidt@makuko.de"
@@ -12,7 +12,7 @@
     "mahalo",
     "webpack-loader"
   ],
-  "license": "SEE LICENSE IN LICENSE.md",
+  "license": "MIT",
   "devDependencies": {
     "babel-plugin-transform-flow-strip-types": "^6.8.0",
     "babel-preset-es2015": "^6.9.0",
