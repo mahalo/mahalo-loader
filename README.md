@@ -21,7 +21,10 @@ In your webpack config object you should have something similar to this:
         loaders: [
             {
                 test: /\.mhml$/,
-                loader: 'mahalo'
+                loader: 'mahalo',
+                query: {
+                    extension: 'html' // default 'mhml'
+                }
             }
         ]
     }

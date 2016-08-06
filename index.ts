@@ -11,6 +11,7 @@ export default function mahaloLoader(content) {
     var map = this.resourcePath + '.ts',
         context = this.context,
         callback = this.async(),
+        extension = this.query.extension || 'mhml',
         uses = [],
         _components = [],
         _behaviors = [],
@@ -71,7 +72,7 @@ export default function mahaloLoader(content) {
             _components.push(desc);		
             
             this.resolve(context, path, addComponent.bind(null, desc));
-            this.resolve(context, path + '.html', addTemplate.bind(null, desc));
+            this.resolve(context, path + '.' + extension, addTemplate.bind(null, desc));
         } else {
             _behaviors.push(desc);
             
@@ -90,7 +91,7 @@ export default function mahaloLoader(content) {
             _components.push(desc);		
             
             this.resolveSync(context, path) && addComponent(desc);
-            this.resolveSync(context, path + '.html') && addTemplate(desc);
+            this.resolveSync(context, path + '.' + extension) && addTemplate(desc);
         } else {
             _behaviors.push(desc);
             
@@ -108,7 +109,7 @@ export default function mahaloLoader(content) {
     
     function addTemplate(desc, err?) {
         if (!err) {
-            desc.files.push(`template: require('${desc.path}.html')['default']`);
+            desc.files.push(`template: require('${desc.path}.${extension}')['default']`);
         }
         
         finish();
