@@ -12,7 +12,7 @@ export default function mahaloLoader(content) {
     var map = this.resourcePath + '.ts',
         context = this.context,
         callback = this.async(),
-        config = loaderUtils.getConfig(this, 'mahaloLoader'),
+        config = loaderUtils.getLoaderConfig(this, 'mahaloLoader'),
         extension = config.extension || 'mhml',
         uses = [],
         _components = [],
