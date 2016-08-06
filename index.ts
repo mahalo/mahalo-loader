@@ -1,4 +1,5 @@
 import fs from 'fs';
+import loaderUtils from 'loader-utils';
 
 var USE_TAG_RAW = /<use\s*(component|behavior)="(~?[\w\/.-]+)"(\s*select="([^"]+)")?\s*\/>\s*/ig,
     USE_TAG_STRING = /<use\s*(component|behavior)=\\"(~?[\w\/.-]+)\\"(\s*select=\\"([^"]+)\\")?\s*\/>(\s|\\r|\\n)*/ig,
@@ -11,7 +12,8 @@ export default function mahaloLoader(content) {
     var map = this.resourcePath + '.ts',
         context = this.context,
         callback = this.async(),
-        extension = this.query.extension || 'mhml',
+        config = loaderUtils.getConfig(this, 'mahaloLoader'),
+        extension = config.extension || 'mhml',
         uses = [],
         _components = [],
         _behaviors = [],

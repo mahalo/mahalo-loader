@@ -27,5 +27,10 @@ In your webpack config object you should have something similar to this:
                 }
             }
         ]
+    },
+
+    // Alternative way to define extension format
+    mahaloLoader: {
+        extension: 'html'
     }
 ```

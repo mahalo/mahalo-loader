@@ -20,5 +20,8 @@
     "grunt-babel": "^6.0.0",
     "grunt-release": "^0.14.0",
     "load-grunt-tasks": "^3.5.0"
+  },
+  "dependencies": {
+    "loader-utils": "^0.2.15"
   }
 }
