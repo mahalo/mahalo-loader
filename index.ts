@@ -22,13 +22,18 @@ export default function mahaloLoader(content) {
         useTag = USE_TAG_RAW,
         styleTag = STYLE_TAG_RAW;
     
-    fs.existsSync(map) || fs.writeFile(map, 'var Template: Template;export default Template;');
+    // Add dummy file for nice IDE inegration
+    fs.existsSync(map) || fs.writeFile(map, 'var Template: Template;\n\nexport default Template;');
     
+    // If this is not the first loader for the file
+    // we are dealing with an exported string and have to
+    // use different regular expressions
     if (this.loaderIndex !== this.loaders.length - 1) {
         useTag = USE_TAG_STRING;
         styleTag = STYLE_TAG_STRING;
     }
     
+    // Find use tags and handle them
     content = content.replace(useTag, (m, kind, path, _, selector) => {
         if (!callback) {
             resolveSync.call(this, kind, path, selector);
@@ -42,6 +47,7 @@ export default function mahaloLoader(content) {
         return '';
     });
     
+    // Find stylesheets and handle them
     content = content.replace(styleTag, (m, _, path) => {
         path = ['.', '/'].indexOf(path[0]) < 0 ? './' + path : path;
         
@@ -50,18 +56,24 @@ export default function mahaloLoader(content) {
         return '';
     });
     
+    // Make sure content is an exportable string
     if (useTag === USE_TAG_RAW) {
         content = JSON.stringify(content);
     } else {
         content = content.replace(/\s*module\.exports\s*=\s*(.*)\s*;\s*$/, '$1');
     }
     
+    // If we're not async we can render now and exit
     if (!callback) {
         return render();
     }
     
     return (uses.length ? uses.forEach(resolveAsync, this) : finish()) || '';
     
+
+    //////////
+
+
     function resolveAsync(item) {
         var path = item[1],
             desc = {
