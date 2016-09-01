@@ -1,7 +1,7 @@
 {
   "name": "mahalo-loader",
   "description": "Webpack loader for script and template files of Mahalo applications",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "author": {
     "name": "Markus Schmidt",
     "email": "m.schmidt@makuko.de"
