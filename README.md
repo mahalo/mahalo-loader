@@ -1,6 +1,6 @@
 #mahalo-loader
-This module contains a loader for webpack. It is used to load templates for
-ths Mahalo framework.
+This module contains a loader for webpack. It is used to load scripts and
+templates for Mahalo applications.
 
 ## Installation
 You should install this package as a development dependency like so:
@@ -10,9 +10,10 @@ npm install --save-dev mahalo-loader
 ```
 
 ##Usage
-Configure webpack to use the preset for the desired files. Typically you will
-use the .mhml extension for your files. This will give you the best IDE support.
-But everything else works fine as well.
+Configure webpack to use the loader for the desired file types. Typically you will
+use the **.ts** extension for your script files and the **.mhml** extension for your
+templates. This will provide the best IDE support. However **.js** files will
+be handled as well via the **allowJs** compiler option.
 
 In your webpack config object you should have something similar to this:
 
@@ -20,10 +21,10 @@ In your webpack config object you should have something similar to this:
     module: {
         loaders: [
             {
-                test: /\.mhml$/,
-                loader: 'mahalo',
+                test: /\.(ts|mhml)$/,
+                loader: 'mahalo?extension=html', // extension default is 'mhml'
                 query: {
-                    extension: 'html' // default 'mhml'
+                    extension: 'html' // Alternative way to define extension format
                 }
             }
         ]

@@ -1,6 +1,6 @@
 {
   "name": "mahalo-loader",
-  "description": "Webpack loader for Mahalo JS template files",
+  "description": "Webpack loader for script and template files of Mahalo applications",
   "version": "0.6.0",
   "author": {
     "name": "Markus Schmidt",
@@ -14,13 +14,12 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "babel-plugin-transform-flow-strip-types": "^6.8.0",
-    "babel-preset-es2015": "^6.13.2",
     "grunt": "^1.0.1",
-    "grunt-babel": "^6.0.0",
-    "load-grunt-tasks": "^3.5.0"
+    "typescript": "^1.8.10"
   },
   "dependencies": {
-    "loader-utils": "^0.2.15"
+    "loader-utils": "^0.2.15",
+    "mahalo-transformer": "0.6.0",
+    "mahalo-transpiler": "0.6.0"
   }
 }

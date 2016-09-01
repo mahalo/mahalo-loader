@@ -1,5 +1,4 @@
-.vscode/
-.babelrc
+.vscode
 .gitignore
 Gruntfile.js
 index.ts
